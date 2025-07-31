@@ -14,6 +14,7 @@ namespace App_API.Domain.IRepository
         Task<T> AddAsync(T entity);
         Task<T> DeleteAsync(T entity);
         Task SaveAsync();
-        
+        Task<IEnumerable<string>> GetBlogNamesByUserIdAsync(int userId);
+
     }
 }

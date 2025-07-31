@@ -18,8 +18,10 @@ namespace App_API.Infrastructure.Data
         public DbSet<Blog> Blogs { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
-
+            modelBuilder.Entity<Blog>()
+        .HasOne(b => b.User)
+        .WithMany(b=>b.Blogs)
+        .HasForeignKey(b => b.UserId);
         }
     }
 }

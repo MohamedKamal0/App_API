@@ -18,30 +18,42 @@ namespace App_API.Controllers
 
         private readonly IUnitOfWork _unitOfWork;
         public readonly AppDbContext _context;
-        public BlogController(IUnitOfWork unitOfWork, AppDbContext context)
+        public readonly IBaseRepository<Blog> _baseRepository;
+        public BlogController(IUnitOfWork unitOfWork, AppDbContext context, IBaseRepository<Blog> baseRepository)
         {
             _unitOfWork = unitOfWork;
             _context = context;
+            _baseRepository = baseRepository;
         }
 
         [HttpPost]
         [Route("Create")]
         public async Task<IActionResult> CreateBlog([FromBody]CreateBlog  dto)
         {
+            var user = await _unitOfWork.Users.GetByIdAsync(dto.UserId);
+            if (user == null)
+            {
+                return NotFound($"User with ID {dto.UserId} not found.");
+
+            }
+
             var blog = new Blog()
             {
-                Id = dto.Id,
+              //  Id = dto.Id,
                 Name = dto.Name,
                 Description = dto.Description,
                 CreatedAt = dto.CreatedAt,
-           
+                UserId=dto.UserId
             };
+            
             await _unitOfWork.Blogs.AddAsync(blog);
-
+            
             return Ok(blog);
         }
+       
 
-     
+
+
         [HttpGet]
         [Route("GetAll")]
         public async Task< IActionResult> GetAllBlog() { 
@@ -60,15 +72,23 @@ namespace App_API.Controllers
             var role = _context.Users.FirstOrDefault(x => x.UserId == admin)?.role;
 
             if (Role.Admin != role)
-                return Unauthorized(); 
+                return Unauthorized();
             var blog = _context.Blogs.FirstOrDefault(x => x.Id == id);
-            if (blog == null)
+         if (blog == null)
                 return NotFound(new { message = "Blog not found" });
-
+            
             _context.Blogs.Remove(blog);
             _context.SaveChanges();
 
             return Ok(new { message = "Blog deleted successfully", blogId = id });
+        }
+
+
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetBlogNamesByUser(int userId)
+        {
+            var blogNames = await _baseRepository.GetBlogNamesByUserIdAsync(userId);
+            return Ok(blogNames);
         }
         private int GetUserIdFromToken()
         {
@@ -82,6 +102,8 @@ namespace App_API.Controllers
             }
             throw new UnauthorizedAccessException("User ID not found in token.");
         }
+
+
 
     }
 }

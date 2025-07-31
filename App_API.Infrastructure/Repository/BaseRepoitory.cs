@@ -30,8 +30,14 @@ namespace App_API.Infrastructure.Repository
         {
             return await _context.Set<T>().ToListAsync();
         }
-        
 
+        public async Task<IEnumerable<string>> GetBlogNamesByUserIdAsync(int userId)
+        {
+            return await _context.Blogs
+                .Where(b => b.UserId == userId)
+                .Select(b => b.Name)
+                .ToListAsync();
+        }
         public async Task<T> GetByIdAsync(int id)
         {
             return await _context.Set<T>().FindAsync(id);

@@ -14,6 +14,9 @@ namespace App_API.Domain.Models
         public string Email { get; set; }
         public string PasswordHash { get; set; }
         public Role role { get; set; }
+
+        public ICollection<Blog> Blogs { get; set; } = new List<Blog>();
+
     }
     public enum Role
     {

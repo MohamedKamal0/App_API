@@ -1,5 +1,6 @@
 using System.Text;
 using App_API.Domain.IRepository;
+using App_API.Domain.Models;
 using App_API.Infrastructure;
 using App_API.Infrastructure.Data;
 using App_API.Infrastructure.Hashing;
@@ -22,7 +23,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<PasswordHasher>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
+builder.Services.AddScoped<IBaseRepository<Blog>, BaseRepoitory<Blog>>();
+builder.Services.AddControllers().AddJsonOptions(x =>
+    x.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles);
 builder.Services.AddDbContext<AppDbContext>(options =>
 
 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
