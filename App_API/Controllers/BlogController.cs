@@ -18,12 +18,10 @@ namespace App_API.Controllers
 
         private readonly IUnitOfWork _unitOfWork;
         public readonly AppDbContext _context;
-        private readonly IBaseRepository<Blog> _baseRepository;
         public BlogController(IUnitOfWork unitOfWork, AppDbContext context)
         {
             _unitOfWork = unitOfWork;
             _context = context;
-            
         }
 
         [HttpPost]
