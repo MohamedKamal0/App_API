@@ -11,7 +11,7 @@ A robust and scalable ASP.NET Core Web API built with Clean Architecture princip
 - 🗃️ **Repository Pattern** - Data access abstraction with Unit of Work
 - 🔐 **Password Security** - SHA256 password hashing
 - 📚 **Swagger Documentation** - Interactive API documentation
-- 🐘 **PostgreSQL Integration** - Robust database with Entity Framework Core
+- 🐘 **PostgreSQL Integration** - Robust database 
 
 ## 🏗️ Architecture
 
