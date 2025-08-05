@@ -4,7 +4,6 @@ using App_API.Domain.IRepository;
 using App_API.Domain.Models;
 using App_API.Infrastructure.Data;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,78 +13,85 @@ namespace App_API.Controllers
     [ApiController]
     public class BlogController : ControllerBase
     {
-
-
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IBaseRepository<Blog> _baseRepository;
         public readonly AppDbContext _context;
-        public readonly IBaseRepository<Blog> _baseRepository;
-        public BlogController(IUnitOfWork unitOfWork, AppDbContext context, IBaseRepository<Blog> baseRepository)
+        public BlogController(IUnitOfWork unitOfWork, IBaseRepository<Blog> baseRepository, AppDbContext context)
         {
             _unitOfWork = unitOfWork;
-            _context = context;
             _baseRepository = baseRepository;
+            _context = context;
         }
 
         [HttpPost]
-        [Route("Create")]
-        public async Task<IActionResult> CreateBlog([FromBody]CreateBlog  dto)
+        [Route("create")]
+        public async Task<IActionResult> CreateBlog([FromBody] CreateBlog dto)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var user = await _unitOfWork.Users.GetByIdAsync(dto.UserId);
             if (user == null)
-            {
-                return NotFound($"User with ID {dto.UserId} not found.");
+                return NotFound(new { message = $"User with ID {dto.UserId} not found." });
 
-            }
-
-            var blog = new Blog()
+            var blog = new Blog
             {
-              //  Id = dto.Id,
                 Name = dto.Name,
                 Description = dto.Description,
                 CreatedAt = dto.CreatedAt,
-                UserId=dto.UserId
+                UserId = dto.UserId
             };
-            
+
             await _unitOfWork.Blogs.AddAsync(blog);
-            
+             _unitOfWork.Complete();
+
+            return CreatedAtAction(nameof(GetBlogById), new { id = blog.Id }, blog);
+        }
+
+        [HttpGet]
+        [Route("all")]
+        public async Task<IActionResult> GetAllBlogs()
+        {
+            var blogs = await _unitOfWork.Blogs.GetAllAsync();
+            return Ok(new { count = blogs.Count(), data = blogs });
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetBlogById(int id)
+        {
+            var blog = await _unitOfWork.Blogs.GetByIdAsync(id);
+            if (blog == null)
+                return NotFound(new { message = "Blog not found" });
+
             return Ok(blog);
         }
-        [HttpGet]
-        [Route("GetAll")]
-        public async Task< IActionResult> GetAllBlog() { 
-        
-            var blogs= await _unitOfWork.Blogs.GetAllAsync();
-            return  Ok( blogs);
 
-        }
-
-        [HttpDelete]
-        [Route("Delete")]
+        [HttpDelete("{id}")]
         [Authorize]
-        public IActionResult DeletBlog(int id )
+        public async Task<IActionResult> DeleteBlog(int id)
         {
-            int admin = GetUserIdFromToken();
-            var role = _context.Users.FirstOrDefault(x => x.UserId == admin)?.role;
+            int currentUserId = GetUserIdFromToken();
 
-            if (Role.Admin != role)
-                return Unauthorized();
-            var blog = _context.Blogs.FirstOrDefault(x => x.Id == id);
-         if (blog == null)
+            var user = await _unitOfWork.Users.GetByIdAsync(currentUserId);
+            if (user == null || user.role != Role.Admin)
+                return Unauthorized(new { message = "Only admins can delete blogs." });
+
+            var blog = await _unitOfWork.Blogs.GetByIdAsync(id);
+            if (blog == null)
                 return NotFound(new { message = "Blog not found" });
-            
             _context.Blogs.Remove(blog);
             _context.SaveChanges();
 
             return Ok(new { message = "Blog deleted successfully", blogId = id });
         }
 
-
-        [HttpGet("user/{userId}")]
+        [HttpGet("user/{userId}/names")]
         public async Task<IActionResult> GetBlogNamesByUser(int userId)
         {
             var blogNames = await _baseRepository.GetBlogNamesByUserIdAsync(userId);
-            return Ok(blogNames);
+            return Ok(new { userId, blogNames });
         }
+
         private int GetUserIdFromToken()
         {
             if (HttpContext.User.Identity is ClaimsIdentity identity)
@@ -98,8 +104,5 @@ namespace App_API.Controllers
             }
             throw new UnauthorizedAccessException("User ID not found in token.");
         }
-
-
-
     }
 }

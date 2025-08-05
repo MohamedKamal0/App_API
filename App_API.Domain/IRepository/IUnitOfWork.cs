@@ -14,6 +14,6 @@ namespace App_API.Domain.IRepository
         IBaseRepository<User> Users { get; }
         IBaseRepository<Blog> Blogs { get; }
         int Complete();
-
+        
     }
 }
