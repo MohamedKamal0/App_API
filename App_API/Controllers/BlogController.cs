@@ -50,10 +50,6 @@ namespace App_API.Controllers
             
             return Ok(blog);
         }
-       
-
-
-
         [HttpGet]
         [Route("GetAll")]
         public async Task< IActionResult> GetAllBlog() { 

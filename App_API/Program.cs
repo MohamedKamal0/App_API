@@ -95,4 +95,13 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+//app.Run();
+try
+{
+    app.Run();
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"❌ Application failed: {ex.Message}");
+    throw;
+}

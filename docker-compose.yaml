@@ -1,0 +1,20 @@
+services:
+  clean-architecture-db:
+    container_name: postgres-clean-architecture
+    image: postgres:17
+    environment:
+      - POSTGRES_DB=APIDb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=123
+    ports:
+      - "8080:5432"
+
+  clean-architecture-app:
+    container_name: cleanapp
+    image: mohamedkama1/appapi
+    ports:
+      - "8004:8080"
+    depends_on:
+      - clean-architecture-db
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=clean-architecture-db;Port=5432;Database=APIDb;Username=postgres;Password=123
