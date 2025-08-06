@@ -16,10 +16,10 @@ RUN dotnet restore "App_API.Service/App_API.Service.csproj"
 #copy EveryThing
 COPY . ./
 # wbuild and publish release
-RUN dotnet publish -c Release -o out
+RUN dotnet publish "App_API/App_API.csproj" -c Release -o out
 #build Runtime image
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
-EXPOSE 80
+EXPOSE 8080
 COPY --from=build-env /app/out .
 ENTRYPOINT [ "dotnet", "App_API.dll"]
