@@ -1,7 +1,6 @@
 # 🔥 Blog Management API
 
-A robust and scalable ASP.NET Core Web API built with Clean Architecture principles for managing blogs and users with JWT authentication and PostgreSQL integration.
-
+A robust and scalable **ASP.NET Core Web API** built with **Clean Architecture** principles for managing blogs and users with JWT authentication and PostgreSQL integration.
 ## ✨ Features
 
 - 🔐 **JWT Authentication & Authorization** - Secure user authentication with role-based access
@@ -47,13 +46,12 @@ This project implements **Clean Architecture** with four distinct layers:
 
 ## 🚀 Quick Start
 
-
 ### 🐳 Docker Setup (Recommended)
 
 1. **Clone the repository**
    ```bash
-   git clone <your-repository-url>
-   cd App_API
+   git clone https://github.com/yourusername/blog-management-api.git
+   cd blog-management-api
    ```
 
 2. **Run with Docker Compose**
@@ -62,37 +60,23 @@ This project implements **Clean Architecture** with four distinct layers:
    ```
 
 3. **Access the API**
-   - API: `http://localhost:8004`
-   - Swagger UI: `http://localhost:8004/swagger`
-   - PostgreSQL: `localhost:8080` (Port 5432 mapped to 8080)
+   - **API**: `http://localhost:8004`
+   - **Swagger UI**: `http://localhost:8004/swagger`
+   - **PostgreSQL**: `localhost:8080` (Port 5432 mapped to 8080)
 
 ### 🔧 Local Development Setup
 
-1. **Clone and restore packages**
+1. **Prerequisites**
+   - [.NET 8.0 SDK](https://dotnet.microsoft.com/download)
+   - [PostgreSQL](https://www.postgresql.org/download/)
+   - [Docker](https://www.docker.com/get-started) (optional)
+
+2. **Clone and restore packages**
    ```bash
-   git clone <your-repository-url>
-   cd App_API
+   git clone https://github.com/yourusername/blog-management-api.git
+   cd blog-management-api
    dotnet restore
    ```
-
-
-3. **Run Database Migrations**
-   ```bash
-   dotnet ef database update --project App_API.Infrastructure --startup-project App_API
-   ```
-
-4. **Run the Application**
-   ```bash
-   cd App_API
-   dotnet run
-   ```
-
-5. **Access Swagger UI**
-   ```
-   https://localhost:7248/swagger (HTTPS)
-   http://localhost:5261/swagger (HTTP)
-   ```
-
 ## 📋 API Endpoints
 
 ### 🔐 Authentication
@@ -109,8 +93,8 @@ This project implements **Clean Architecture** with four distinct layers:
 | `POST` | `/api/Blog/create` | Create new blog | ❌ | Any |
 | `GET` | `/api/Blog/all` | Get all blogs | ❌ | Any |
 | `GET` | `/api/Blog/{id}` | Get blog by ID | ❌ | Any |
-| `GET` | `/api/Blog/user/{userId}/names` | Get blog names by user | ❌ | Any |
-| `DELETE` | `/api/Blog/{id}` | Delete blog | ✅ | Admin |
+| `GET` | `/api/Blog/userBlogs?userId={userId}` | Get blog names by user | ❌ | Any |
+| `DELETE` | `/api/Blog/delete{id}` | Delete blog | ✅ | Admin |
 
 ## 📖 Usage Examples
 
@@ -126,11 +110,6 @@ curl -X POST "http://localhost:8004/api/Auth/register" \
   }'
 ```
 
-**Response:**
-```json
-"User registered successfully."
-```
-
 ### User Login
 
 ```bash
@@ -142,11 +121,6 @@ curl -X POST "http://localhost:8004/api/Auth/login" \
   }'
 ```
 
-**Response:**
-```json
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-```
-
 ### Create Blog
 
 ```bash
@@ -155,7 +129,7 @@ curl -X POST "http://localhost:8004/api/Blog/create" \
   -d '{
     "name": "My First Blog",
     "description": "This is my first blog about technology",
-    "createdAt": "2025-08-05T10:00:00Z",
+    "createdAt": "2025-08-06T10:00:00Z",
     "userId": 1
   }'
 ```
@@ -166,33 +140,10 @@ curl -X POST "http://localhost:8004/api/Blog/create" \
 curl -X GET "http://localhost:8004/api/Blog/all"
 ```
 
-**Response:**
-```json
-{
-  "count": 2,
-  "data": [
-    {
-      "id": 1,
-      "name": "My First Blog",
-      "description": "This is my first blog about technology",
-      "createdAt": "2025-08-05T10:00:00Z",
-      "userId": 1
-    }
-  ]
-}
-```
-
-### Delete Blog (Admin Only)
-
-```bash
-curl -X DELETE "http://localhost:8004/api/Blog/1" \
-  -H "Authorization: Bearer YOUR_JWT_TOKEN_HERE"
-```
-
 ## 🗂️ Project Structure
 
 ```
-📁 App_API.sln
+📁 Blog-Management-API/
 ├── 📁 App_API/ (Presentation Layer)
 │   ├── 📁 Controllers/
 │   │   ├── AuthController.cs
@@ -245,70 +196,59 @@ curl -X DELETE "http://localhost:8004/api/Blog/1" \
 |----------|------------|---------|
 | **Framework** | ASP.NET Core | 8.0 |
 | **Database** | PostgreSQL | 17 |
+| **ORM** | Entity Framework Core | 9.0.7 |
 | **Authentication** | JWT Bearer Tokens | 8.13.0 |
 | **Documentation** | Swagger/OpenAPI | 6.6.2 |
 | **Containerization** | Docker | Latest |
 | **Architecture** | Clean Architecture | - |
 | **Pattern** | Repository + Unit of Work | - |
 
-## ⚙️ Configuration
-
-### JWT Configuration
-
-Update `appsettings.json`:
-
-```json
-{
-  "JWT": {
-    "Issuer": "YourAppName",
-    "Audience": "YourAppName",
-    "Lifetime": 24,
-    "SigningKey": "Your-32-Character-Secret-Key-Here"
-  }
-}
-```
-
-### Database Configuration
-
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Port=5432;Database=APIDb;Username=postgres;Password=yourpassword"
-  }
-}
-```
-
-## 🧪 Testing the API
+## 🧪 Testing
 
 ### Using Swagger UI
 1. Navigate to `http://localhost:8004/swagger`
 2. Register a new user
 3. Login to get JWT token
 4. Click "Authorize" and enter: `Bearer YOUR_TOKEN`
-5. Test protected endpoints
+5. Test all endpoints
 
 ### Using Postman
-Import the API endpoints or use the provided curl examples above.
+Import the provided API collection or use the curl examples above.
 
-## 🐛 Troubleshooting
+### Using curl
+All endpoints can be tested using the curl examples provided in the [Usage Examples](#-usage-examples) section.
 
-### Common Issues
+## 📊 API Response Examples
 
-1. **Database Connection Error**
-   ```
-   Solution: Ensure PostgreSQL is running and connection string is correct
-   ```
+### Successful Registration Response
+```json
+"User registered successfully."
+```
 
-2. **JWT Token Issues**
-   ```
-   Solution: Check JWT configuration in appsettings.json
-   ```
+### Login Response
+```json
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIxIiwiZW1haWwiOiJqb2huQGV4YW1wbGUuY29tIiwibmJmIjoxNzMzNTEyMDAwLCJleHAiOjE3MzM1OTg0MDAsImlhdCI6MTczMzUxMjAwMH0.example_signature"
+```
 
-3. **Docker Port Conflicts**
-   ```
-   Solution: Change ports in docker-compose.yaml if 8004 or 8080 are occupied
-   ```
-
-**Built with ❤️ using Clean Architecture principles**
-
-**Happy Coding! 🚀**
+### Get All Blogs Response
+```json
+{
+  "count": 2,
+  "data": [
+    {
+      "id": 1,
+      "name": "My First Blog",
+      "description": "This is my first blog about technology",
+      "createdAt": "2025-08-06T10:00:00Z",
+      "userId": 1
+    },
+    {
+      "id": 2,
+      "name": "Learning ASP.NET Core",
+      "description": "A comprehensive guide to ASP.NET Core development",
+      "createdAt": "2025-08-06T12:00:00Z",
+      "userId": 1
+    }
+  ]
+}
+```
