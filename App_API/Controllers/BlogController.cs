@@ -66,7 +66,7 @@ namespace App_API.Controllers
             return Ok(blog);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("delete{id}")]
         [Authorize]
         public async Task<IActionResult> DeleteBlog(int id)
         {
@@ -85,7 +85,7 @@ namespace App_API.Controllers
             return Ok(new { message = "Blog deleted successfully", blogId = id });
         }
 
-        [HttpGet("user/{userId}/names")]
+        [HttpGet("userBlogs")]
         public async Task<IActionResult> GetBlogNamesByUser(int userId)
         {
             var blogNames = await _baseRepository.GetBlogNamesByUserIdAsync(userId);
