@@ -6,6 +6,7 @@ using App_API.Infrastructure.Data;
 using App_API.Infrastructure.Hashing;
 using App_API.Infrastructure.Repository;
 using App_API.Service;
+using App_API.Service.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +26,13 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IBaseRepository<Blog>, BaseRepoitory<Blog>>();
 builder.Services.AddControllers().AddJsonOptions(x =>
-    x.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles);
+    x.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles
+    );
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<PermissionBaseAuthrizationFilter>();
+});
+
 builder.Services.AddDbContext<AppDbContext>(options =>
 
 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))

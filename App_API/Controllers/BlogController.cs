@@ -3,6 +3,7 @@ using App_API.Domain.Dtos;
 using App_API.Domain.IRepository;
 using App_API.Domain.Models;
 using App_API.Infrastructure.Data;
+using App_API.Service.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,13 +15,12 @@ namespace App_API.Controllers
     public class BlogController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IBaseRepository<Blog> _baseRepository;
-        public readonly AppDbContext _context;
-        public BlogController(IUnitOfWork unitOfWork, IBaseRepository<Blog> baseRepository, AppDbContext context)
+     //   private readonly IBaseRepository<Blog> _baseRepository;
+       // public readonly AppDbContext _context;
+        public BlogController(IUnitOfWork unitOfWork, AppDbContext context)
         {
             _unitOfWork = unitOfWork;
-            _baseRepository = baseRepository;
-            _context = context;
+         //   _context = context;
         }
 
         [HttpPost]
@@ -67,20 +67,20 @@ namespace App_API.Controllers
         }
 
         [HttpDelete("delete{id}")]
-        [Authorize]
+        [CheckPermission(Permission.Delete)]
         public async Task<IActionResult> DeleteBlog(int id)
         {
             int currentUserId = GetUserIdFromToken();
 
-            var user = await _unitOfWork.Users.GetByIdAsync(currentUserId);
-            if (user == null || user.role != Role.Admin)
-                return Unauthorized(new { message = "Only admins can delete blogs." });
+           // var user = await _unitOfWork.Users.GetByIdAsync(currentUserId);
+           // if (user == null || user.role != Role.Admin)
+            //    return Unauthorized(new { message = "Only admins can delete blogs." });
 
             var blog = await _unitOfWork.Blogs.GetByIdAsync(id);
             if (blog == null)
                 return NotFound(new { message = "Blog not found" });
-            _context.Blogs.Remove(blog);
-            _context.SaveChanges();
+            _unitOfWork.Blogs.DeleteAsync(blog);
+            _unitOfWork.Complete();
 
             return Ok(new { message = "Blog deleted successfully", blogId = id });
         }
@@ -88,7 +88,7 @@ namespace App_API.Controllers
         [HttpGet("userBlogs")]
         public async Task<IActionResult> GetBlogNamesByUser(int userId)
         {
-            var blogNames = await _baseRepository.GetBlogNamesByUserIdAsync(userId);
+            var blogNames = await _unitOfWork.Blogs.GetBlogNamesByUserIdAsync(userId);
             return Ok(new { userId, blogNames });
         }
 

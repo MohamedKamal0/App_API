@@ -38,12 +38,18 @@ namespace App_API.Infrastructure.Data
         
         public DbSet<User> Users { get; set; }
         public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Userpermission> Userpermissions { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<Blog>()
         .HasOne(b => b.User)
         .WithMany(b=>b.Blogs)
         .HasForeignKey(b => b.UserId);
+
+            modelBuilder.Entity<Userpermission>().HasKey(up => new { up.UserId, up.PermissionId });
+
         }
     }
 }
